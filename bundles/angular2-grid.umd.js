@@ -1075,7 +1075,7 @@
             /** @type {?} */
             var mousePos = this._getMousePosition(e);
             /** @type {?} */
-            var item = this._getItemFromPosition(mousePos);
+            var item = this._getItemFromPosition(mousePos, true);
             if (item == null)
                 return;
             /** @type {?} */
@@ -2538,19 +2538,20 @@
             /** @type {?} */
             var itemWidth = this.colWidth + this.marginLeft + this.marginRight;
             return Math.floor((maxWidth - (this._maxCols * itemWidth)) / 2);
-            ;
         };
         /**
          * @private
          * @param {?} position
+         * @param {?=} dragStart
          * @return {?}
          */
         NgGrid.prototype._getItemFromPosition = /**
          * @private
          * @param {?} position
+         * @param {?=} dragStart
          * @return {?}
          */
-        function (position) {
+        function (position, dragStart) {
             var _this = this;
             return Array.from(this._itemsInGrid, (/**
              * @param {?} itemId
@@ -2567,8 +2568,19 @@
                 var size = item.getDimensions();
                 /** @type {?} */
                 var pos = item.getPosition();
-                return position.left >= pos.left && position.left < (pos.left + size.width) &&
-                    position.top >= pos.top && position.top < (pos.top + size.height);
+                if (position.left > (pos.left + _this.marginLeft) && position.left < (pos.left + _this.marginLeft + size.width) &&
+                    position.top > (pos.top + _this.marginTop) && position.top < (pos.top + _this.marginTop + size.height)) {
+                    if (dragStart) {
+                        if (item.config.active) {
+                            return item;
+                        }
+                    }
+                    else {
+                        return item;
+                    }
+                    return position.left >= pos.left && position.left < (pos.left + size.width)
+                        && position.top >= pos.top && position.top < (pos.top + size.height);
+                }
             }));
         };
         /**

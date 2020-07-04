@@ -740,7 +740,7 @@ class NgGrid {
         /** @type {?} */
         var mousePos = this._getMousePosition(e);
         /** @type {?} */
-        var item = this._getItemFromPosition(mousePos);
+        var item = this._getItemFromPosition(mousePos, true);
         if (item == null)
             return;
         /** @type {?} */
@@ -1898,14 +1898,14 @@ class NgGrid {
         /** @type {?} */
         const itemWidth = this.colWidth + this.marginLeft + this.marginRight;
         return Math.floor((maxWidth - (this._maxCols * itemWidth)) / 2);
-        ;
     }
     /**
      * @private
      * @param {?} position
+     * @param {?=} dragStart
      * @return {?}
      */
-    _getItemFromPosition(position) {
+    _getItemFromPosition(position, dragStart) {
         return Array.from(this._itemsInGrid, (/**
          * @param {?} itemId
          * @return {?}
@@ -1921,8 +1921,19 @@ class NgGrid {
             const size = item.getDimensions();
             /** @type {?} */
             const pos = item.getPosition();
-            return position.left >= pos.left && position.left < (pos.left + size.width) &&
-                position.top >= pos.top && position.top < (pos.top + size.height);
+            if (position.left > (pos.left + this.marginLeft) && position.left < (pos.left + this.marginLeft + size.width) &&
+                position.top > (pos.top + this.marginTop) && position.top < (pos.top + this.marginTop + size.height)) {
+                if (dragStart) {
+                    if (item.config.active) {
+                        return item;
+                    }
+                }
+                else {
+                    return item;
+                }
+                return position.left >= pos.left && position.left < (pos.left + size.width)
+                    && position.top >= pos.top && position.top < (pos.top + size.height);
+            }
         }));
     }
     /**
