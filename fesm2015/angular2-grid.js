@@ -424,9 +424,6 @@ class NgGrid {
                     break;
                 case 'limit_to_screen':
                     this._limitToScreen = !this._autoResize && !!val;
-                    if (this._limitToScreen) {
-                        this._maxCols = this._getContainerColumns();
-                    }
                     break;
                 case 'center_to_screen':
                     this._centerToScreen = val ? true : false;
@@ -700,7 +697,6 @@ class NgGrid {
     resizeEventHandler(e) {
         // this._calculateColWidth();
         // this._calculateRowHeight();
-        //
         // this._updateRatio();
         if (this._limitToScreen) {
             /** @type {?} */
@@ -740,7 +736,7 @@ class NgGrid {
         /** @type {?} */
         var mousePos = this._getMousePosition(e);
         /** @type {?} */
-        var item = this._getItemFromPosition(mousePos, true);
+        var item = this._getItemFromPosition(mousePos, e);
         if (item == null)
             return;
         /** @type {?} */
@@ -983,6 +979,7 @@ class NgGrid {
         if (!this.dragEnable || !this._draggingItem)
             return;
         //    Start dragging
+        console.log(this._draggingItem);
         this._draggingItem.startMoving();
         this._removeFromGrid(this._draggingItem);
         this._createPlaceholder(this._draggingItem);
@@ -1902,10 +1899,10 @@ class NgGrid {
     /**
      * @private
      * @param {?} position
-     * @param {?=} dragStart
+     * @param {?=} e
      * @return {?}
      */
-    _getItemFromPosition(position, dragStart) {
+    _getItemFromPosition(position, e) {
         return Array.from(this._itemsInGrid, (/**
          * @param {?} itemId
          * @return {?}
@@ -1921,19 +1918,16 @@ class NgGrid {
             const size = item.getDimensions();
             /** @type {?} */
             const pos = item.getPosition();
-            if (position.left > (pos.left + this.marginLeft) && position.left < (pos.left + this.marginLeft + size.width) &&
-                position.top > (pos.top + this.marginTop) && position.top < (pos.top + this.marginTop + size.height)) {
-                if (dragStart) {
-                    if (item.config.active) {
-                        return item;
-                    }
+            if (e) {
+                if (e.target.closest('.modal-window.grid-item') === item.containerRef.element.nativeElement) {
+                    return true;
                 }
                 else {
-                    return item;
+                    return false;
                 }
-                return position.left >= pos.left && position.left < (pos.left + size.width)
-                    && position.top >= pos.top && position.top < (pos.top + size.height);
             }
+            return position.left >= pos.left && position.left < (pos.left + size.width) &&
+                position.top >= pos.top && position.top < (pos.top + size.height);
         }));
     }
     /**

@@ -481,9 +481,6 @@ var NgGrid = /** @class */ (function () {
                     break;
                 case 'limit_to_screen':
                     this._limitToScreen = !this._autoResize && !!val;
-                    if (this._limitToScreen) {
-                        this._maxCols = this._getContainerColumns();
-                    }
                     break;
                 case 'center_to_screen':
                     this._centerToScreen = val ? true : false;
@@ -810,7 +807,6 @@ var NgGrid = /** @class */ (function () {
     function (e) {
         // this._calculateColWidth();
         // this._calculateRowHeight();
-        //
         // this._updateRatio();
         if (this._limitToScreen) {
             /** @type {?} */
@@ -854,7 +850,7 @@ var NgGrid = /** @class */ (function () {
         /** @type {?} */
         var mousePos = this._getMousePosition(e);
         /** @type {?} */
-        var item = this._getItemFromPosition(mousePos, true);
+        var item = this._getItemFromPosition(mousePos, e);
         if (item == null)
             return;
         /** @type {?} */
@@ -1145,6 +1141,7 @@ var NgGrid = /** @class */ (function () {
         if (!this.dragEnable || !this._draggingItem)
             return;
         //    Start dragging
+        console.log(this._draggingItem);
         this._draggingItem.startMoving();
         this._removeFromGrid(this._draggingItem);
         this._createPlaceholder(this._draggingItem);
@@ -2321,16 +2318,16 @@ var NgGrid = /** @class */ (function () {
     /**
      * @private
      * @param {?} position
-     * @param {?=} dragStart
+     * @param {?=} e
      * @return {?}
      */
     NgGrid.prototype._getItemFromPosition = /**
      * @private
      * @param {?} position
-     * @param {?=} dragStart
+     * @param {?=} e
      * @return {?}
      */
-    function (position, dragStart) {
+    function (position, e) {
         var _this = this;
         return Array.from(this._itemsInGrid, (/**
          * @param {?} itemId
@@ -2347,19 +2344,16 @@ var NgGrid = /** @class */ (function () {
             var size = item.getDimensions();
             /** @type {?} */
             var pos = item.getPosition();
-            if (position.left > (pos.left + _this.marginLeft) && position.left < (pos.left + _this.marginLeft + size.width) &&
-                position.top > (pos.top + _this.marginTop) && position.top < (pos.top + _this.marginTop + size.height)) {
-                if (dragStart) {
-                    if (item.config.active) {
-                        return item;
-                    }
+            if (e) {
+                if (e.target.closest('.modal-window.grid-item') === item.containerRef.element.nativeElement) {
+                    return true;
                 }
                 else {
-                    return item;
+                    return false;
                 }
-                return position.left >= pos.left && position.left < (pos.left + size.width)
-                    && position.top >= pos.top && position.top < (pos.top + size.height);
             }
+            return position.left >= pos.left && position.left < (pos.left + size.width) &&
+                position.top >= pos.top && position.top < (pos.top + size.height);
         }));
     };
     /**
