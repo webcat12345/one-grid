@@ -1362,7 +1362,6 @@
             if (!this.dragEnable || !this._draggingItem)
                 return;
             //    Start dragging
-            console.log(this._draggingItem);
             this._draggingItem.startMoving();
             this._removeFromGrid(this._draggingItem);
             this._createPlaceholder(this._draggingItem);
